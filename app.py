@@ -23,8 +23,8 @@ def ask(subjects: str, operations: str, input1: str, input2: str, questions_on: 
                 engine="GPT4-8K",
                 model_name="gpt-4",
                 headers={
-                "Helicone-Auth": "Bearer sk-helicone-d62snei-jmsewli-qa53kaq-f2rpsci",
-                    "Helicone-User-Id": "manoj21-07-2023"
+                "Helicone-Auth": "",
+                    "Helicone-User-Id": ""
                 }
             )
         
