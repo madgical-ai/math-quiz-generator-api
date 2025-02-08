@@ -1,0 +1,25 @@
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environment
+venv/
+myenv/
+
+# Environment variables
+.env
+
+# Logs and database files
+*.log
+db.sqlite3
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore requirements.txt backups
+requirements.txt~

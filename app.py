@@ -1,66 +1,42 @@
-from lcserve import serving
 import os
-from langchain.llms import AzureOpenAI
-from langchain import PromptTemplate, LLMChain
-from langchain.chat_models import ChatOpenAI
-from langchain.agents import AgentType, initialize_agent
-from langchain.tools import Tool
-from langchain.callbacks import get_openai_callback
-from helicone.openai_proxy import openai
+from fastapi import FastAPI
+from dotenv import load_dotenv
+from langchain_google_genai import ChatGoogleGenerativeAI
+from prompt import question_prompt_template, solution_prompt_template, explanation_prompt_template
+load_dotenv()
 
-openai.api_type = "azure"
-openai.api_version = "2023-03-15-preview"
+os.environ["GOOGLE_API_KEY"] = os.getenv("GEMINI")
 
-os.environ["LANGCHAIN_TRACING"] = "true"
-os.environ["LANGCHAIN_SESSION"] = "trace_question_generation"
+os.environ["LANGSMITH_TRACING"]="true"
+os.environ["LANGSMITH_ENDPOINT"]="https://api.smith.langchain.com"
+os.environ["LANGSMITH_API_KEY"]=os.getenv("langsmit")
+os.environ["LANGSMITH_PROJECT"]="csv-extraction"
 
-@serving
-def ask(subjects: str, operations: str, input1: str, input2: str, questions_on: str) -> dict:
-    with get_openai_callback() as cb:
-        
-        llm = AzureOpenAI(
-                temperature=0,
-                engine="GPT4-8K",
-                model_name="gpt-4",
-                headers={
-                "Helicone-Auth": "",
-                    "Helicone-User-Id": ""
-                }
-            )
-        
-        total_token = 0
-        total_cost = 0
-        
-        subject = subjects
-        operation = operations
-        number1 = input1
-        number2 = input2
-        question_on = questions_on
 
-        question_prompt = f"""you have to generate a simple math question in English for the given data:\n
-        Subject: {subject}, Operation: {operation}, Input1: {number1}, Input2: {number2}, Question_on: {question_on}.
-        """
+app = FastAPI()
 
-        question = llm(question_prompt)  # Generate the question here
-        
-        solution_prompt = f"""you have a math question given in between triple backticks. you have to solve the question and give only the final answer according to a math grade 3 teacher:
-```{question}```
-"""
+llm = ChatGoogleGenerativeAI(
+    model="gemini-1.5-flash",
+    temperature=0,
+    max_tokens=None,
+    timeout=None,
+    max_retries=2,
+)
 
-        explanation_prompt = f"""You are a math teacher of grade 3. You have a math question given in between triple backticks. You have to solve the question for a 3rd standard student.
-```{question}```
-"""
+@app.post("/ask")
+async def ask(subjects: str, operations: str, input1: str, input2: str, questions_on: str):
+    question_prompt = question_prompt_template.format(subjects=subjects, operations=operations, input1 = input1, input2=input2, questions_on=questions_on)
+    question = llm.invoke(question_prompt)
+ 
+    solution_prompt = solution_prompt_template.format(question = question.content)
+    solution = llm.invoke(solution_prompt)
 
-        solution = llm(solution_prompt)
-        explanation = llm(explanation_prompt)
+    explanation_prompt = explanation_prompt_template.format(question = question.content)
+    explanation = llm.invoke(explanation_prompt)
+    
+    return {
+        "question": question.content,
+        "solution": solution.content,
+        "explanation": explanation.content,
+    }
 
-        total_token = total_token + cb.total_tokens
-        total_cost = total_cost + cb.total_cost
-        print(cb)
-        print("Total Token ", total_token)
-        print("Total Cost ", total_cost)
-        print(question)
-        print(solution)
-        print(explanation)
-
-        return {"question": question, "solution": solution, "explanation": explanation, "total_token": cb.total_tokens, "total_cost": cb.total_cost}
