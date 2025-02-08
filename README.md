@@ -26,6 +26,35 @@ pip install -r requirements.txt
 
 ---
 
+## 🔑 **Setting Up API Keys**
+
+To use Langsmith and Gemini, create a `.env` file in the root of your project and add the following lines:
+
+```
+LANGSMITH=<your_langsmith_api_key>
+GEMINI=<your_gemini_api_key>
+```
+
+### **Steps to Get API Keys**
+
+#### **1. Get Langsmith API Key**
+
+1. Go to [Langsmith](https://smith.langchain.com/) and log in.
+2. Navigate to **API Keys** in your account settings.
+3. Generate a new API key and copy it.
+4. Paste it into the `.env` file under `LANGSMITH=`.
+
+#### **2. Get Gemini API Key**
+
+1. Visit [Google AI Studio](https://aistudio.google.com/) and sign in.
+2. Go to **API Keys** under your account settings.
+3. Generate a Gemini API key and copy it.
+4. Paste it into the `.env` file under `GEMINI=`.
+
+After adding the keys, restart your FastAPI server to apply the changes.
+
+---
+
 ## 🚀 **Setting Up FastAPI**
 
 ### **1. Running the FastAPI Server**
@@ -39,19 +68,23 @@ uvicorn app:app --reload
 By default, FastAPI will run at `http://127.0.0.1:8000`.
 
 ### **2. Exposing FastAPI with Ngrok**
+
 Since Google Sheets cannot access `localhost`, use **ngrok** to expose your API publicly:
 
 1. Install ngrok if not already installed:
+
    ```bash
    pip install pyngrok
    ```
 
 2. Start ngrok on port 8000:
+
    ```bash
    ngrok http 8000
    ```
 
 3. Copy the `https://your-ngrok-url.ngrok.io` URL and update **Settings!B1** in Google Sheets with:
+
    ```
    https://your-ngrok-url.ngrok.io/ask
    ```
