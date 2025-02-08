@@ -10,7 +10,7 @@ os.environ["GOOGLE_API_KEY"] = os.getenv("GEMINI")
 os.environ["LANGSMITH_TRACING"]="true"
 os.environ["LANGSMITH_ENDPOINT"]="https://api.smith.langchain.com"
 os.environ["LANGSMITH_API_KEY"]=os.getenv("langsmit")
-os.environ["LANGSMITH_PROJECT"]="csv-extraction"
+os.environ["LANGSMITH_PROJECT"]="question-generator"
 
 
 app = FastAPI()
